@@ -1,0 +1,784 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Datamart API",
+    "description": "# 3rd Party Api Integration\nThis is the documentation of the various apis that can be used by 3rd parties (such as couriers) to integrate with Zain’s Sales platform.",
+    "contact": {
+      "name": "Kefah T. Issa",
+      "url": "https://pos.startapps.com",
+      "email": "kefah@startappz.com"
+    },
+    "x-logo": {
+      "url": "https://pos.startappz.com/redoc/startappz.png"
+    },
+    "version": "0.7.6"
+  },
+  "servers": [
+    {
+      "url": "https://pos.startappz.com/dmart"
+    }
+  ],
+  "paths": {
+    "/user/login": {
+      "post": {
+        "summary": "Login",
+        "description": "This api shold be called before using any other api. Upon successful login, a JWT access token is returned. The JWT access token must then be used as \"Autorization: Bearer {jwt token}\" in the following api calls",
+        "operationId": "login_user_login_post",
+        "x-codeSamples": [
+          {
+            "lang": "Curl",
+            "source": "curl 'https://pos.startappz.com/dmart/user/login' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n  \"shortname\": \"username\",\n  \"password\": \"password\"\n}'"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "shortname": {
+                    "title": "username",
+                    "type": "string"
+                  },
+                  "password": {
+                    "title": "Password",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginSuccsessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Faild Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginFailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/managed/request": {
+      "post": {
+        "summary": "Create or update ticket",
+        "description": "Tickets represent a core service in the Zain sales system. Various ticket types are supported, such as check_info, sim_swap, connect_disconnect …etc. The unique id is called \"shortname\". The ticket shrotname will be used in any subsequent api call in relation to the ticket. In the case a ticket type requires attachments (e.g. sim_swap) ticket submission api call is required in order to declare the ticket being ready for the Back office to process.",
+        "operationId": "serve_request_managed_request_post",
+        "x-codeSamples": [
+          {
+            "lang": "Curl",
+            "label": "Create sim_swap",
+            "source": "curl 'https://pos.startappz.com/dmart/managed/request' \\\n--header 'Authorization: Bearer TOKEN' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    \"space_name\": \"aftersales\",\n    \"request_type\": \"create\",\n    \"records\": [\n        {\n            \"resource_type\": \"ticket\",\n            \"subpath\": \"/tickets/sim_swap\",\n            \"shortname\": \"transaction_id2223\",\n            \"attributes\": {\n                \"workflow_shortname\": \"sim_swap\",\n                \"is_active\": true,\n                \"payload\": {\n                    \"schema_shortname\": \"sim_swap\",\n                    \"content_type\": \"ticket\",\n                    \"body\": {\n                        \"customer_name\": \"example name\",\n                        \"msisdn\": \"1234567891\"\n  }\n                }\n            }\n        }\n    ]\n}'"
+          },
+          {
+            "lang": "Curl",
+            "label": "Create check_info",
+            "source": "curl 'https://pos.startappz.com/dmart/managed/request' \\\n--header 'Authorization: Bearer TOKEN' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\"space_name\": \"aftersales\",\n    \"request_type\": \"create\",\n    \"records\": [\n        {\n            \"resource_type\": \"ticket\",\n            \"subpath\": \"/tickets/check_info\",\n            \"shortname\": \"joe11\",\n            \"attributes\": {\n                \"workflow_shortname\": \"check_info\",\n                \"is_active\": true,\n                \"payload\": {\n                    \"schema_shortname\": \"check_info\",\n                    \"content_type\": \"json\",\n                    \"body\": {\n                            \"customer_name\": \"Danish\",\n                        \"msisdn\": \"7839921515\"\n                    }\n                }\n            }\n        }\n    ]\n}'"
+          },
+          {
+            "lang": "Curl",
+            "label": "Update sim_swap",
+            "source": "curl 'https://pos.startappz.com/dmart/managed/request' \\\n--header 'Authorization: Bearer TOKEN' \\\n--header 'Content-Type: text/plain' \\\n--data-raw '{\n    \"space_name\": \"aftersales\",\n    \"request_type\": \"update\",\n    \"records\": [\n        {\n            \"resource_type\": \"ticket\",\n            \"subpath\": \"/tickets/sim_swap\",\n            \"shortname\": \"transaction_id222\",\n            \"attributes\": {\n                \"workflow_shortname\": \"sim_swap\",\n                \"is_active\": true,\n                \"payload\": {\n                    \"schema_shortname\": \"sim_swap\",\n                    \"content_type\": \"json\",\n                    \"body\": {\n                        \"iccid\": \"987456\"\n                    }\n                }\n            }\n        }\n    ]\n}'"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Faild Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateOrUpdaeFailResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT_Bearer": []
+          }
+        ]
+      }
+    },
+    "/managed/resource_with_payload": {
+      "post": {
+        "summary": "Upload attachment",
+        "operationId": "create_or_update_ticket",
+        "description": "Depending on its type, a ticket can have attachments associated with it. Eg. documents (pdf, …), images (jpeg, gif, png). Each attachment shoud be uploaded separetly (multipart/form-data). The shortname of the attachment should reflect the nature of the attachment being uploaded. E.g. (national_id, fingerprint, photograph, ..etc). Besides the actual binary payload, this api requires a json file, called *request_record* with the following structure ```json {\"attributes\":{\"is_active\":true,\"tags\":[]},\"resource_type\":\"media\",\"shortname\":\"personal_id\",\"subpath\":\"\/tickets\/xxd129\"}```",
+        "x-codeSamples": [
+          {
+            "lang": "Curl",
+            "source": "curl 'https://pos.startappz.com/dmart/managed/resource_with_payload' \\\n--header 'Authorization: Bearer TOKEN' \\\n--form 'payload_file=@\"/path/to/file\"' \\\n--form 'request_record=@\"/path/to/file\"' \\\n--form 'space_name=\"aftersales\"'"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/create_or_update_ticket"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Faild Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadAttachmentFailResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT_Bearer": []
+          }
+        ]
+      }
+    },
+    "/managed/progress-ticket/aftersales/tickets/{type}/{shortname}/{action}": {
+      "put": {
+        "summary": "Progress ticket state",
+        "description": "A ticket state can be progressed according to its pre-defined workflow. E.g. tickets that require attachments, need to be 'submitted' after all the attachments are uploaded. In this case, submission would make the ticket ready to be actioned by the Zain backoffice.",
+        "operationId": "progress_state",
+        "x-codeSamples": [
+          {
+            "lang": "Curl",
+            "source": "curl  --request PUT 'https://pos.startappz.com/dmart/managed/progress-ticket/aftersales/tickets/sim_swap/889e2139/'   \\\n --header 'Authorization: Bearer TOKEN'"
+          }
+        ],
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Type",
+              "enum": [
+                "check_info",
+                "sim_swap"
+              ],
+              "type": "string"
+            },
+            "name": "type",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Shortname",
+              "type": "string"
+            },
+            "name": "shortname",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Action",
+              "enum": [
+                "submit",
+                "deliver",
+                "cancel"
+              ],
+              "type": "string",
+              "description": "submit used after uploading required attachments"
+            },
+            "name": "action",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "progress_ticket",
+                "type": "object",
+                "properties": {
+                  "resolution": {
+                    "title": "Resolution",
+                    "description": "Only required when setting the ticket's final state",
+                    "type": "string"
+                  },
+                  "comment": {
+                    "title": "Comment",
+                    "description": "Arbitrary comment",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Faild Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FailResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT_Bearer": []
+          }
+        ]
+      }
+    },
+    "/managed/entry/ticket/aftersales/tickets/{type}/{shortname}": {
+      "get": {
+        "summary": "Retrieve ticket state ",
+        "description": "Using the shortname provided during ticket creation, the ticket information can be queried (including the status).",
+        "operationId": "retrieve_ticket",
+        "x-codeSamples": [
+          {
+            "lang": "Curl",
+            "source": "curl 'https://pos.startappz.com/dmart/managed/entry/ticket/aftersales/tickets/{{type}}/d0038f89' \\\n--header 'Authorization: Bearer TOKEN' \\\n"
+          }
+        ],
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Ticket type",
+              "enum": [
+                "check_info",
+                "sim_swap"
+              ],
+              "type": "string",
+              "description": "type of the ticket."
+            },
+            "name": "type",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Shortname",
+              "type": "string"
+            },
+            "name": "shortname",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetrieveTicketSuccsessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Faild Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FailResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT_Bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "create_or_update_ticket": {
+        "title": "create_or_update_ticket",
+        "required": [
+          "payload_file",
+          "request_record",
+          "space_name"
+        ],
+        "type": "object",
+        "properties": {
+          "payload_file": {
+            "title": "Payload File",
+            "type": "string",
+            "format": "binary",
+            "description": "media image file EX national id , digital signture etc"
+          },
+          "request_record": {
+            "title": "Request Record",
+            "type": "string",
+            "format": "json",
+            "description": "json file should be same as json obiect in description"
+          },
+          "space_name": {
+            "title": "Space Name",
+            "type": "string",
+            "default": "aftersales"
+          }
+        }
+      },
+      "Error": {
+        "title": "Error",
+        "required": [
+          "type",
+          "code",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "integer"
+          },
+          "message": {
+            "title": "Message",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "Record": {
+        "title": "Record",
+        "required": [
+          "resource_type",
+          "shortname",
+          "subpath",
+          "attributes"
+        ],
+        "type": "object",
+        "properties": {
+          "resource_type": {
+            "$ref": "#/components/schemas/ResourceType"
+          },
+          "shortname": {
+            "title": "Shortname",
+            "type": "string"
+          },
+          "subpath": {
+            "title": "Subpath",
+            "type": "string"
+          },
+          "attributes": {
+            "title": "Attributes",
+            "type": "object",
+            "$ref": "#/components/schemas/ResourceTypeAttributes"
+          }
+        }
+      },
+      "Request": {
+        "title": "Request",
+        "required": [
+          "space_name",
+          "request_type",
+          "records"
+        ],
+        "type": "object",
+        "properties": {
+          "space_name": {
+            "title": "Space Name",
+            "type": "string",
+            "default": "aftersales"
+          },
+          "request_type": {
+            "$ref": "#/components/schemas/RequestType"
+          },
+          "records": {
+            "title": "Records",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Record"
+            }
+          }
+        }
+      },
+      "RequestType": {
+        "title": "RequestType",
+        "enum": [
+          "create",
+          "update"
+        ],
+        "type": "string",
+        "description": "will toggle the end point to create or update."
+      },
+      "ResourceType": {
+        "title": "ResourceType",
+        "enum": [
+          "ticket"
+        ],
+        "type": "string"
+      },
+      "SuccessResponse": {
+        "title": "Response",
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "succses"
+            ]
+          }
+        }
+      },
+      "CreateOrUpdaeFailResponse": {
+        "example": {
+          "status": "failed",
+          "error": {
+            "type": "request",
+            "code": 400,
+            "message": [
+              {
+                "error": "This shortname 7c59dea7 already exists"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "code": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "records": {
+            "type": "null"
+          },
+          "attributes": {
+            "type": "null"
+          }
+        }
+      },
+      "FailResponse": {
+        "example": {
+          "status": "failed",
+          "error": {
+            "type": "db",
+            "code": 12,
+            "message": "requested object not found"
+          }
+        },
+        "title": "Response",
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "failed"
+            ]
+          },
+          "error": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      },
+      "UploadAttachmentFailResponse": {
+        "example": {
+          "status": "failed",
+          "error": {
+            "type": "attachment",
+            "code": 217,
+            "message": "The file type is not supported"
+          }
+        },
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "code": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "records": {
+            "type": "null"
+          },
+          "attributes": {
+            "type": "null"
+          }
+        }
+      },
+      "Status": {
+        "title": "Status",
+        "enum": [
+          "success",
+          "failed"
+        ],
+        "type": "string",
+        "description": "Api execution status"
+      },
+      "LoginSuccsessResponse": {
+        "example": {
+          "status": "success",
+          "records": [
+            {
+              "attributes": {
+                "access_token": "TOKEN"
+              }
+            }
+          ]
+        },
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "attributes": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginFailResponse": {
+        "example": {
+          "status": "failed",
+          "error": {
+            "type": "auth",
+            "code": 14,
+            "message": "Bad creds [2]"
+          }
+        },
+        "status": "failed",
+        "error": {
+          "type": "auth",
+          "code": 14,
+          "message": "Bad creds [2]"
+        }
+      },
+      "RetrieveTicketSuccsessResponse": {
+        "example": {
+          "shortname": "transaction_id",
+          "state": "rejected"
+        },
+        "type": "object",
+        "properties": {
+          "shortname": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "new",
+              "pending",
+              "approved",
+              "rejected",
+              "completed"
+            ]
+          }
+        }
+      },
+      "ResourceTypeAttributes": {
+        "title": "ResourceTypeAttributes",
+        "required": [
+          "workflow_shortname",
+          "is_active",
+          "payload"
+        ],
+        "type": "object",
+        "properties": {
+          "workflow_shortname": {
+            "title": "workflow_shortname",
+            "type": "string",
+            "enum": [
+              "check_info",
+              "sim_swap"
+            ]
+          },
+          "is_active": {
+            "title": "is_active",
+            "type": "boolean"
+          },
+          "payload": {
+            "title": "payload",
+            "type": "object",
+            "$ref": "#/components/schemas/ResourceTypeAttributesPayload"
+          }
+        }
+      },
+      "ResourceTypeAttributesPayload": {
+        "title": "payload",
+        "required": [
+          "name",
+          "is_active",
+          "payload"
+        ],
+        "type": "object",
+        "properties": {
+          "schema_shortname": {
+            "title": "schema_shortname",
+            "type": "string"
+          },
+          "content_type": {
+            "title": "schema_shortname",
+            "type": "string",
+            "enum": [
+              "json"
+            ]
+          },
+          "body": {
+            "title": "body",
+            "required": [
+              "customer_name",
+              "delivery_tracking_link",
+              "registration_name",
+              "msisdn"
+            ],
+            "type": "object",
+            "properties": {
+              "customer_name": {
+                "title": "customer_name",
+                "type": "string"
+              },
+              "delivery_tracking_link": {
+                "title": "delivery_tracking_link",
+                "type": "string"
+              },
+              "registration_name": {
+                "title": "registration_name",
+                "type": "string"
+              },
+              "msisdn": {
+                "title": "msisdn",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "JWT_Bearer": {
+        "description": "JWT token in Authorization header",
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
